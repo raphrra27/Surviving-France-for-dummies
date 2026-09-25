@@ -7,6 +7,7 @@ import Map from '../views/Map.vue'
 import Quiz from '../views/Quiz.vue'
 import Ranking from '../views/Ranking.vue'
 import Profil from '../views/Profil.vue'
+import AboutUs from '../views/AboutUs.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,7 @@ const router = createRouter({
     { path: '/quiz', name: 'Quiz', component: Quiz },
     { path: '/ranking', name: 'Ranking', component: Ranking },
     { path: '/profil', name: 'Profil', component: Profil },
+    { path: '/aboutus', name: 'AboutUs', component: AboutUs },
   ],
 })
 

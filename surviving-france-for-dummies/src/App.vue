@@ -1,11 +1,13 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import NavBar from '@/components/Header.vue'
+import Header from '@/components/Header.vue'
+import Footer from '@/components/Footer.vue'
 // import { useAuthStore } from '@/stores/auth'
-// const auth = useAuthStore() (quand le store sera écrit)
+// const auth = useAuthStore()
 </script>
 
 <template>
-  <NavBar  />  <!-- v-if="auth.isLoggedIn" (quand on aura une database) -->
+  <Header  />  <!-- v-if="auth.isLoggedIn" (quand on aura une database) -->
   <RouterView />
+  <Footer /> <!-- pareil pour lui  -->
 </template>
