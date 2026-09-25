@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
-  database: "your_db_name",
+  database: "surviving_france",
 });
 
 app.get("/", (req, res) => {
