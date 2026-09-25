@@ -1,5 +1,6 @@
 <template>
-  <main>
-    <h1>Surviving France for Dummies</h1>
-  </main>
+  <div class="home-page">
+    <h1>Index page</h1>
+  </div>
 </template>
+
