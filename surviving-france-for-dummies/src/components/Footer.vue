@@ -122,4 +122,41 @@ a:hover {
 .to-top:hover {
     background-color: #FFEE00;
 }
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 40px 20px 24px;
+    }
+
+    .top {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .top br {
+        display: none;
+    }
+
+    .part1 p {
+        display: none;
+    }
+
+    #logo {
+        width: 200px;
+        height: 70px;
+        margin: 0;
+    }
+
+    .part2 a[href^="mailto"] {
+        margin-top: 20px;
+    }
+
+    .top > .part3 {
+        gap: 20px;
+    }
+
+    .part3 .title {
+        margin-bottom: 0;
+    }
+}
 </style>
