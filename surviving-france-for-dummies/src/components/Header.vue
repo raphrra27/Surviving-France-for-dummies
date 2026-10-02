@@ -53,7 +53,7 @@
 <template>
     <header class="navbar">
         <nav class="navbar-logo">
-            <RouterLink to="/" id="logo"><img src="/logo.png" alt="logo-surviving"></RouterLink>
+            <RouterLink to="/HomeView" id="logo"><img src="/logo.png" alt="logo-surviving"></RouterLink>
         </nav>
         <nav class="navbar-links" ref="linksRef">
             <RouterLink to="/article" class="links" id="article-nav">Articles</RouterLink>
@@ -95,7 +95,7 @@
         <!-- Menu plein écran (téléphone) -->
         <div class="mobile-menu" v-if="menuOpen">
             <div class="mobile-menu-top">
-                <RouterLink to="/" id="mobile-menu-logo"><img src="/logo.png" alt="logo-surviving"></RouterLink>
+                <RouterLink to="/HomeView" id="mobile-menu-logo"><img src="/logo.png" alt="logo-surviving"></RouterLink>
                 <button class="close" @click="menuOpen = false" aria-label="Fermer le menu">
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                         <path d="M5 5l14 14M19 5L5 19" />
@@ -120,7 +120,7 @@
             </div>
 
             <nav class="mobile-links">
-                <RouterLink to="/">Home</RouterLink>
+                <RouterLink to="/HomeView">Home</RouterLink>
                 <RouterLink to="/article">Articles</RouterLink>
                 <RouterLink to="/map">Map</RouterLink>
                 <RouterLink to="/quiz">Quiz</RouterLink>
