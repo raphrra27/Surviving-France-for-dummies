@@ -1,0 +1,12 @@
+[Unit]
+Description=Surviving France for Dummies (site + API)
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/surviving-france/server
+ExecStart=%h/.local/bin/node server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
