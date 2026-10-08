@@ -12,11 +12,11 @@ cd "$(dirname "$0")"
 (cd surviving-france-for-dummies && VITE_API_URL=/ npm run build)
 
 ssh "$HOST" "mkdir -p $DIR/server $DIR/surviving-france-for-dummies/dist .config/systemd/user"
-# tar over ssh: the server has no rsync. server/.env stays on the server, it
-# holds that machine's own settings.
+# tar over ssh: the server has no rsync. server/.env and server/uploads stay on
+# the server: its own settings and the pictures its users uploaded.
 ssh "$HOST" "rm -rf $DIR/surviving-france-for-dummies/dist && mkdir -p $DIR/surviving-france-for-dummies/dist"
 tar -C surviving-france-for-dummies/dist -cz . | ssh "$HOST" "tar -xz -C $DIR/surviving-france-for-dummies/dist"
-tar -C server --exclude=node_modules --exclude=.env -cz . | ssh "$HOST" "tar -xz -C $DIR/server"
+tar -C server --exclude=node_modules --exclude=.env --exclude=uploads -cz . | ssh "$HOST" "tar -xz -C $DIR/server"
 scp -q deploy/surviving-france.service "$HOST:.config/systemd/user/"
 
 ssh "$HOST" "cd $DIR/server && PATH=\$HOME/.local/bin:\$PATH npm ci --omit=dev \

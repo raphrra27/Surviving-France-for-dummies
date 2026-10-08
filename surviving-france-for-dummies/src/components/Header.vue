@@ -1,8 +1,24 @@
 <script setup>
-    import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
-    import { useRoute } from "vue-router";
+    import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+    import { useRoute, useRouter } from "vue-router";
+    import { useAuthStore } from "@/stores/auth";
+    import api from "@/services/api";
 
     const route = useRoute();
+    const router = useRouter();
+    const auth = useAuthStore();
+
+    // avatar_url is a path on the API server ("/uploads/..."), so prefix it with the API address
+    const avatarUrl = computed(function () {
+        const path = auth.user?.avatar_url;
+        return path ? api.defaults.baseURL.replace(/\/$/, "") + path : null;
+    });
+    const username = computed(() => auth.user?.username || "Name");
+
+    function logout() {
+        auth.logout();
+        router.push("/Login");
+    }
     const linksRef = ref(null);
     const bar = ref({ left: 0, width: 0, visible: false });
 
@@ -18,7 +34,6 @@
         }
     }
 
-    // Menu téléphone
     const menuOpen = ref(false);
 
     function closeMenuOnDesktop() {
@@ -27,7 +42,6 @@
         }
     }
 
-    // Empêche la page de défiler derrière le menu ouvert
     watch(menuOpen, function (open) {
         document.body.style.overflow = open ? "hidden" : "";
     });
@@ -72,15 +86,16 @@
         </nav>
         <nav class="navbar-profil">
             <RouterLink to="/profil" id="profil-nav">
-                <img src="../../public/profil-picture-ex.jpeg" alt="profil pictures" id="profil-pict-nav">
-                <span id="profil-text">Name <br> Badges</span>
+                <img :src="avatarUrl || '/profil-picture-ex.jpeg'" alt="profil pictures" id="profil-pict-nav">
+                <span id="profil-text">{{ username }} <br> Badges</span>
             </RouterLink>
         </nav>
 
         <!-- Boutons visibles uniquement sur téléphone -->
         <div class="mobile-actions">
             <RouterLink to="/profil" class="mobile-profil" aria-label="Profil">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <img v-if="avatarUrl" :src="avatarUrl" alt="">
+                <svg v-else viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
                 </svg>
@@ -106,17 +121,18 @@
             <div class="user-card">
                 <RouterLink to="/profil" class="user-info">
                     <span class="user-avatar">
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <img v-if="avatarUrl" :src="avatarUrl" alt="">
+                        <svg v-else viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                             <circle cx="12" cy="8" r="4" />
                             <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
                         </svg>
                     </span>
                     <span>
-                        <span class="user-name">Name →</span>
+                        <span class="user-name">{{ username }} →</span>
                         <span class="user-badge">Badges</span>
                     </span>
                 </RouterLink>
-                <button type="button" class="logout">Log out</button>
+                <button type="button" class="logout" @click="logout">Log out</button>
             </div>
 
             <nav class="mobile-links">
@@ -325,6 +341,14 @@
         padding: 16px;
         border-radius: 16px;
         background-color: black;
+    }
+
+    .mobile-profil img,
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     .user-info {

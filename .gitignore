@@ -6,6 +6,9 @@ node_modules/
 .env.*
 !.env.example
 
+# Uploaded profile pictures
+server/uploads/
+
 # Build output
 dist/
 
