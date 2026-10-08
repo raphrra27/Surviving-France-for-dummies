@@ -13,7 +13,13 @@ try {
 
 const app = express();
 
-app.use(cors(process.env.CORS_ORIGIN ? { origin: process.env.CORS_ORIGIN.split(",") } : {}));
+app.use(
+  cors(
+    process.env.CORS_ORIGIN
+      ? { origin: process.env.CORS_ORIGIN.split(",") }
+      : {}
+  )
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -83,6 +89,38 @@ app.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login failed:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/register", async (req, res) => {
+  const { name, lname, username, email, password } = req.body || {};
+  if (!name || !lname || !username || !email || !password) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+  if (password.length < 8) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 8 characters" });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    await pool
+      .promise()
+      .query(
+        "INSERT INTO users (first_name, last_name, username, email, password_hash) VALUES (?, ?, ?, ?, ?)",
+        [name, lname, username, email, passwordHash]
+      );
+    res.status(201).json({ message: "Account created" });
+  } catch (err) {
+    // The users table has UNIQUE constraints on email and username
+    if (err.code === "ER_DUP_ENTRY") {
+      return res
+        .status(409)
+        .json({ message: "This email or username is already used" });
+    }
+    console.error("Register failed:", err.message);
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -208,7 +208,7 @@ form button:hover {
     background-color: #FFFFFF;
 }
 
-/* Téléphone : les deux blocs passent l'un sous l'autre */
+
 @media (max-width: 768px) {
     .global {
         flex-direction: column;
