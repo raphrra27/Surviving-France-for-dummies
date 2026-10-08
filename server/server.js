@@ -125,6 +125,24 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.get("/articles", (req, res) => {
+  const query = `
+    SELECT id, title, slug, category, cover_image_url, summary, read_time_minutes
+    FROM articles
+    WHERE status = 'published'
+    ORDER BY created_at DESC
+  `;
+
+  pool.query(query, (error, rows) => {
+    if (error) {
+      console.error("Could not load articles:", error);
+      return res.status(500).json({ message: "Could not load articles" });
+    }
+
+    res.json(rows);
+  });
+});
+
 // Any other page URL is a Vue route: let the frontend router handle it
 if (hasFrontend) {
   app.use((req, res, next) => {
