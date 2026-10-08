@@ -143,6 +143,75 @@ app.get("/articles", (req, res) => {
   });
 });
 
+
+app.get("/articles/:slug", (req, res) => {
+  const query = `
+    SELECT
+      articles.id,
+      articles.title,
+      articles.slug,
+      articles.category,
+      articles.cover_image_url,
+      articles.summary,
+      articles.content,
+      articles.read_time_minutes,
+      articles.updated_at,
+      users.username AS author_username
+    FROM articles
+    JOIN users ON users.id = articles.author_id
+    WHERE articles.slug = ? AND articles.status = 'published'
+  `;
+
+  pool.query(query, [req.params.slug], (error, rows) => {
+    if (error) {
+      console.error("Could not load article:", error);
+      return res.status(500).json({ message: "Could not load article" });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+
+    res.json(rows[0]);
+  });
+});
+
+
+
+app.post("/articles/:id/progress", (req, res) => {
+  const userId = 1; // temporaire pour le test
+  const articleId = req.params.id;
+
+  const query = `
+    INSERT INTO article_progress (
+      user_id,
+      article_id,
+      percent_read,
+      completed
+    ) VALUES (?, ?, 100, TRUE)
+    ON DUPLICATE KEY UPDATE
+      percent_read = 100,
+      completed = TRUE,
+      last_read_at = CURRENT_TIMESTAMP
+  `;
+
+  pool.query(query, [userId, articleId], (error) => {
+    if (error) {
+      console.error("Could not mark as read:", error);
+      return res.status(500).json({
+        message: "Could not mark as read",
+      });
+    }
+
+    res.json({
+      message: "Article marked as read",
+    });
+  });
+});
+
+
+
+
 // Any other page URL is a Vue route: let the frontend router handle it
 if (hasFrontend) {
   app.use((req, res, next) => {
@@ -150,6 +219,8 @@ if (hasFrontend) {
     res.sendFile(path.join(distDir, "index.html"));
   });
 }
+
+
 
 const port = Number(process.env.PORT) || 3000;
 app.listen(port, () => {

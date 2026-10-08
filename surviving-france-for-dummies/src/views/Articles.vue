@@ -75,7 +75,12 @@ onMounted(async () => {
           <h2>{{ article.title }}</h2>
           <p class="article-description">{{ article.summary }}</p>
           <p class="read-time">{{ article.read_time_minutes }} min read</p>
-          <button type="button" class="discover-button">Discover <span aria-hidden="true">-&gt;</span></button>
+          <RouterLink
+  :to="{ name: 'ArticleDiscover', params: { slug: article.slug } }"
+  class="discover-button"
+>
+  Discover <span aria-hidden="true">-&gt;</span>
+          </RouterLink>       
         </div>
       </article>
     </section>
@@ -135,33 +140,38 @@ h1 {
 
 .article-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
+  margin-top: 30px;
   overflow-x: auto;
   padding-bottom: 0.5rem;
 }
 
 .article-tabs button {
   flex: 0 0 auto;
-  border: 1px solid #d9d5ca;
-  border-radius: 999px;
-  background: transparent;
-  color: #53616a;
+  border: 2px solid #111;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
   cursor: pointer;
-  padding: 0.6rem 1rem;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  padding: 0.75rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .article-tabs button:hover,
 .article-tabs button.active {
-  border-color: #213547;
-  background: #213547;
-  color: #fff;
+  border-color: #111;
+  background: #111;
+  color: #f6e800;
 }
 
 .article-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
 }
 
@@ -209,13 +219,12 @@ h1 {
 }
 
 .discover-button {
+  display: inline-block;
   margin-top: auto;
   padding: 1.25rem 0 0;
-  border: 0;
-  background: transparent;
   color: #d85b45;
-  cursor: pointer;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .discover-button:hover {
@@ -235,5 +244,10 @@ h1 {
   .articles-page {
     padding-top: 0;
   }
+
+  .article-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
 </style>

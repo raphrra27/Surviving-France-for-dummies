@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import HomeView from '../views/HomeView.vue'
 import Articles from '../views/Articles.vue'
+import ArticleDiscover from '../views/ArticleDiscover.vue'
 import Map from '../views/Map.vue'
 import Quiz from '../views/Quiz.vue'
 import Ranking from '../views/Ranking.vue'
@@ -17,6 +18,7 @@ const router = createRouter({
     { path: '/Login', name: 'Login', component: Login, meta: { guestOnly: true } },
     { path: '/Register', name: 'Register', component: Register, meta: { guestOnly: true } },
     { path: '/article', name: 'Articles', component: Articles, meta: { requiresAuth: true } },
+    { path: '/article/:slug', name: 'ArticleDiscover', component: ArticleDiscover, meta: { requiresAuth: true } },
     { path: '/map', name: 'Map', component: Map, meta: { requiresAuth: true } },
     { path: '/quiz', name: 'Quiz', component: Quiz, meta: { requiresAuth: true } },
     { path: '/ranking', name: 'Ranking', component: Ranking, meta: { requiresAuth: true } },
