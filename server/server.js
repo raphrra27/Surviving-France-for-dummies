@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const multer = require("multer");
 
 // Optional server/.env file (see .env.example); defaults below target a local setup
 try {
@@ -29,6 +31,24 @@ const hasFrontend = fs.existsSync(path.join(distDir, "index.html"));
 if (hasFrontend) {
   app.use(express.static(distDir));
 }
+
+const uploadsDir = path.join(__dirname, "uploads");
+fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
+
+const avatarTypes = { "image/png": ".png", "image/jpeg": ".jpg" };
+const uploadAvatar = multer({
+  storage: multer.diskStorage({
+    destination: uploadsDir,
+    filename: (req, file, cb) =>
+      cb(null, crypto.randomUUID() + avatarTypes[file.mimetype]),
+  }),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (avatarTypes[file.mimetype]) return cb(null, true);
+    cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname));
+  },
+}).single("avatar");
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
@@ -63,7 +83,7 @@ app.post("/login", async (req, res) => {
     const [users] = await pool
       .promise()
       .query(
-        "SELECT id, username, email, password_hash, role FROM users WHERE email = ?",
+        "SELECT id, username, email, password_hash, role, avatar_url FROM users WHERE email = ?",
         [email]
       );
     const user = users[0];
@@ -85,6 +105,7 @@ app.post("/login", async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        avatar_url: user.avatar_url,
       },
     });
   } catch (err) {
@@ -93,36 +114,53 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/register", async (req, res) => {
-  const { name, lname, username, email, password } = req.body || {};
-  if (!name || !lname || !username || !email || !password) {
-    return res.status(400).json({ message: "Missing fields" });
-  }
-  if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 8 characters" });
-  }
-
-  try {
-    const passwordHash = await bcrypt.hash(password, 10);
-    await pool
-      .promise()
-      .query(
-        "INSERT INTO users (first_name, last_name, username, email, password_hash) VALUES (?, ?, ?, ?, ?)",
-        [name, lname, username, email, passwordHash]
-      );
-    res.status(201).json({ message: "Account created" });
-  } catch (err) {
-    // The users table has UNIQUE constraints on email and username
-    if (err.code === "ER_DUP_ENTRY") {
-      return res
-        .status(409)
-        .json({ message: "This email or username is already used" });
+app.post("/register", (req, res) => {
+  uploadAvatar(req, res, async (uploadErr) => {
+    if (uploadErr) {
+      const message =
+        uploadErr.code === "LIMIT_FILE_SIZE"
+          ? "Profile picture must be 2 MB or less"
+          : "Profile picture must be a PNG or JPEG image";
+      return res.status(400).json({ message });
     }
-    console.error("Register failed:", err.message);
-    res.status(500).json({ message: "Server error" });
-  }
+
+    const removeAvatar = () => {
+      if (req.file) fs.unlink(req.file.path, () => {});
+    };
+
+    const { name, lname, username, email, password } = req.body || {};
+    if (!name || !lname || !username || !email || !password) {
+      removeAvatar();
+      return res.status(400).json({ message: "Missing fields" });
+    }
+    if (password.length < 8) {
+      removeAvatar();
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters" });
+    }
+
+    try {
+      const passwordHash = await bcrypt.hash(password, 10);
+      const avatarUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      await pool
+        .promise()
+        .query(
+          "INSERT INTO users (first_name, last_name, username, email, password_hash, avatar_url) VALUES (?, ?, ?, ?, ?, ?)",
+          [name, lname, username, email, passwordHash, avatarUrl]
+        );
+      res.status(201).json({ message: "Account created" });
+    } catch (err) {
+      removeAvatar();
+      if (err.code === "ER_DUP_ENTRY") {
+        return res
+          .status(409)
+          .json({ message: "This email or username is already used" });
+      }
+      console.error("Register failed:", err.message);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 });
 
 app.get("/articles", (req, res) => {

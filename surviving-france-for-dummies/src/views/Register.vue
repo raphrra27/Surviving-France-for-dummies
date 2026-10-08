@@ -11,22 +11,34 @@ const username = ref('')
 const email = ref('')
 const password = ref('')
 const error = ref('')
+const avatar = ref(null)
 const loading = ref(false)
+
+function pickAvatar(event) {
+  avatar.value = event.target.files[0] || null
+}
 
 async function signup() {
   error.value = ''
   loading.value = true
   try {
-    await auth.register({
-      name: name.value,
-      lname: lname.value,
-      username: username.value,
-      email: email.value,
-      password: password.value,
-    })
+    const fields = new FormData()
+    fields.append('name', name.value)
+    fields.append('lname', lname.value)
+    fields.append('username', username.value)
+    fields.append('email', email.value)
+    fields.append('password', password.value)
+    if (avatar.value) {
+      fields.append('avatar', avatar.value)
+    }
+    await auth.register(fields)
     router.push('/Login')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Cannot reach the server'
+    if (err.response?.status === 413) {
+      error.value = 'Profile picture is too large'
+    } else {
+      error.value = err.response?.data?.message || 'Cannot reach the server'
+    }
   } finally {
     loading.value = false
   }
@@ -61,6 +73,8 @@ async function signup() {
                 <input v-model="email" type="email" id="mail" name="mail" placeholder="Email" required>
                 <label for="password">PASSWORD</label>
                 <input v-model="password" type="password" id="password" name="password" placeholder="••••••••" minlength="8" required>
+                <label for="avatar">PROFILE PICTURE (OPTIONAL)</label>
+                <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" @change="pickAvatar">
                 <p v-if="error" class="error">{{ error }}</p>
                 <button type="submit" :disabled="loading">SIGN UP</button>
             </form>

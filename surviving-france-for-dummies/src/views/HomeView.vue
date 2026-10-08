@@ -14,6 +14,7 @@ function logout() {
 <template>
   <div class="home-page">
     <h1>Index page</h1>
+    <!-- Temporary: the header only has a Log out button in the phone menu -->
     <button type="button" @click="logout">Log out (test)</button>
   </div>
 </template>
