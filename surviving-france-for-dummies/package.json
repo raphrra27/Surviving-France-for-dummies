@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:shared": "vite --mode shared",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "run-s \"lint:*\"",
