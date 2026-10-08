@@ -12,7 +12,8 @@ import AboutUs from '../views/AboutUs.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'Home', component: HomeView },
+    { path: '/', redirect: '/Login' },
+    { path: '/HomeView', name: 'Home', component: HomeView },
     { path: '/Login', name: 'Login', component: Login },
     { path: '/Register', name: 'Register', component: Register },
     { path: '/article', name: 'Articles', component: Articles },
@@ -28,6 +29,9 @@ router.beforeEach((to) => {
   const isAuthenticated = !!localStorage.getItem('token')
   if (to.meta.requiresAuth && !isAuthenticated) {
     return '/login'
+  }
+  if (to.meta.guestOnly && isAuthenticated) {
+    return '/HomeView'
   }
 })
 
