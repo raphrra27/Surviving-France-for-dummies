@@ -30,6 +30,9 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     return '/login'
   }
+  if (to.meta.guestOnly && isAuthenticated) {
+    return '/HomeView'
+  }
 })
 
 export default router
